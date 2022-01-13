@@ -1,0 +1,37 @@
+version: '3.1'
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:alpine
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: bbw_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./database/public.sql:/docker-entrypoint-initdb.d/dump.sql:ro
+    networks:
+      network_klik:
+        ipv4_address: 10.5.0.5
+  apps:
+    build:
+      context: .
+    image: achmadacm11/bbw_test:latest
+    container_name: bbw_test
+    restart: always
+    ports:
+      - '8080:8080'
+    networks:
+      network_klik:
+        ipv4_address: 10.5.0.6
+    depends_on:
+      - postgres
+networks:
+  network_klik:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1
